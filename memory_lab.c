@@ -18,14 +18,12 @@ void out_of_memory() {
         }
     }
 }
-
 // Memory leak
 void memory_leak() {
     int *MEM = (int*) malloc(sizeof(int) * 1000);
     printf("Allocated memory but did not free it -> leak!\n");
     // cố tình không gọi free(MEM);
 }
-
 int main(int argc, char *argv[]) {
     if (argc != 2) {
         printf("Usage:\n");
@@ -44,6 +42,5 @@ int main(int argc, char *argv[]) {
     } else {
         printf("Unknown option: %s\n", argv[1]);
     }
-
     return 0;
 }
