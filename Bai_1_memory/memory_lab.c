@@ -2,13 +2,11 @@
 #include <stdlib.h>
 #include <string.h>
 
-// Stack overflow
 void stack_overflow(int count) {
     printf("Stack overflow: %d\n", count);
     stack_overflow(count + 1); // đệ quy vô hạn gây tràn stack
 }
 
-// Out of memory (OOM)
 void out_of_memory() {
     while (1) {
         int *MEM = (int*) malloc(sizeof(int) * 10000000);
@@ -18,12 +16,12 @@ void out_of_memory() {
         }
     }
 }
-// Memory leak
+
 void memory_leak() {
     int *MEM = (int*) malloc(sizeof(int) * 1000);
     printf("Allocated memory but did not free it -> leak!\n");
-    // cố tình không gọi free(MEM);
 }
+
 int main(int argc, char *argv[]) {
     if (argc != 2) {
         printf("Usage:\n");
