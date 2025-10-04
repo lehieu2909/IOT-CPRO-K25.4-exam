@@ -1,35 +1,62 @@
+/*******************************************************************************
+ * Code
+ ******************************************************************************/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+#include <unistd.h> /* For sleep() on POSIX. Replace for embedded RTOS if needed. */
+
 #include "config.h"
-#include "sensors.h"
-#include "actuators.h"
-#include "watering_logic.h"
-#include "utils.h"
+#include "spws_controller.h"
 
-Config g_config;
-SensorData g_sensor_data;
+/*******************************************************************************
+ * Prototypes
+ ******************************************************************************/
 
-int main(void) {
-    srand((unsigned int)time(NULL));
+/* Helper: simulate 1-second tick */
+static void s_DelayOneSecond(void);
 
-    g_config.mode = MODE_AUTO;
-    g_config.min_moisture = 30;
-    g_config.max_moisture = 70;
-    g_config.max_water_seconds = 15;
-    g_config.sensor_interval_seconds = 5;
+/*******************************************************************************
+ * Variables
+ ******************************************************************************/
 
-    utils_init();
-    actuators_init();
-    sensors_init();
-    watering_logic_init();
+/* Global system state declared in spws_controller.c (definition) is used.
+ * We reference it here as extern to avoid multiple definitions.
+ */
+extern SystemState_t g_SystemState;
 
-    printf("[MAIN] Smart Plant Watering System started.\n");
+/*******************************************************************************
+ * Code
+ ******************************************************************************/
 
+int main(void)
+{
+    /* Initialize system state */
+    System_Init(&g_SystemState);
+
+    /* Main loop: 1-second tick */
     while (1) {
-        watering_task_cycle();
-        utils_delay_ms(100); 
+        /* Simulate passing of one second */
+        s_DelayOneSecond();
+
+        /* Update elapsed counters used by controller */
+        g_SystemState.sensorElapsed_s += 1U;
+        if (g_SystemState.pumpState == PUMP_ON) {
+            g_SystemState.wateringTimeElapsed_s += 1U;
+        }
+
+        /* Run controller logic once per second */
+        SPWS_Run(&g_SystemState);
+
+        /* In embedded code, any housekeeping or low-power could be done here */
     }
 
     return 0;
+}
+
+/* Simple 1-second wait - for simulation on POSIX systems */
+static void s_DelayOneSecond(void)
+{
+    sleep(1);
 }
